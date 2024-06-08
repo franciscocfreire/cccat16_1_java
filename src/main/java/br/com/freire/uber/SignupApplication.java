@@ -22,29 +22,28 @@ public class SignupApplication {
 
     @PostMapping("/signup")
     public Response signup(@RequestBody SignupRequest request) {
-        String result;
         try {
-            String id = UUID.randomUUID().toString();
+            UUID id = UUID.randomUUID();
 
-            String sql = "SELECT * FROM cccat15.account WHERE email = ?";
+            String sql = "SELECT * FROM cccat16.account WHERE email = ?";
             var acc = jdbcTemplate.queryForList(sql, request.getEmail());
 
             if (acc.isEmpty()) {
-                if (Pattern.matches("[a-zA-Z] [a-zA-Z]+", request.getName())) {
+                if (Pattern.matches("[a-zA-Z]+ [a-zA-Z]+", request.getName())) {
                     if (Pattern.matches("^(.+)@(.+)$", request.getEmail())) {
                         if (validateCpf(request.getCpf())) {
                             if (request.isDriver()) {
                                 if (Pattern.matches("[A-Z]{3}[0-9]{4}", request.getCarPlate())) {
-                                    jdbcTemplate.update("INSERT INTO cccat15.account (account_id, name, email, cpf, car_plate, is_passenger, is_driver) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                    jdbcTemplate.update("INSERT INTO cccat16.account (account_id, name, email, cpf, car_plate, is_passenger, is_driver) VALUES (?, ?, ?, ?, ?, ?, ?)",
                                             id, request.getName(), request.getEmail(), request.getCpf(), request.getCarPlate(), request.isPassenger(), request.isDriver());
-                                    return new Response(id);
+                                    return new Response(id.toString());
                                 } else {
                                     return new Response(-5);
                                 }
                             } else {
-                                jdbcTemplate.update("INSERT INTO cccat15.account (account_id, name, email, cpf, car_plate, is_passenger, is_driver) VALUES (?, ?, ?, ?, ?, ?, ?)",
+                                jdbcTemplate.update("INSERT INTO cccat16.account (account_id, name, email, cpf, car_plate, is_passenger, is_driver) VALUES (?, ?, ?, ?, ?, ?, ?)",
                                         id, request.getName(), request.getEmail(), request.getCpf(), request.getCarPlate(), request.isPassenger(), request.isDriver());
-                                return new Response(id);
+                                return new Response(id.toString());
                             }
                         } else {
                             return new Response(-1);
@@ -64,13 +63,15 @@ public class SignupApplication {
     }
 
     private boolean validateCpf(String cpf) {
-
         return CpfValidator.validate(cpf);
     }
 
-    static class Response {
+    public static class Response {
         private String accountId;
         private int errorCode;
+
+        // Construtor padrão
+        public Response() {}
 
         public Response(String accountId) {
             this.accountId = accountId;

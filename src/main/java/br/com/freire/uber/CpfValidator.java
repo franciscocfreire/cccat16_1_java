@@ -3,10 +3,10 @@ package br.com.freire.uber;
 public class CpfValidator {
 
     public static boolean validate(String cpf) {
-        cpf = cpf.replaceAll("\\D", "");
-        if (cpf == null || cpf.length() != 11) {
+        if (cpf == null) {
             return false;
         }
+        cpf = cpf.replaceAll("\\D", "");
         if (cpf.length() != 11) {
             return false;
         }
